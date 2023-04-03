@@ -1,24 +1,33 @@
 # Anemo
 
+### About
+
 A simple library for OpenAI's API.
+
+### Getting Started
 
 ```js
 import { Anemo } from "https://github.com/apacheli/anemo/raw/master/anemo.js";
 
-const model = "text-davinci-003";
+console.log("Anemo 0.0.2");
+console.log("use ctrl+c to exit");
+console.log("type enter on nil prompt to reset");
 
 const anemo = new Anemo(Deno.env.get("OPENAI_API_KEY"));
-
-console.log(`Anemo demo\nmodel: ${model}\nuse ctrl+c to exit`);
+const messages = [];
+const model = "gpt-3.5-turbo";
 
 while (true) {
-  const input = prompt(">");
-  const body = await anemo.createCompletion({
-    max_tokens: 256,
-    model,
-    n: 1,
-    prompt: input,
-  });
-  console.log(`\x1b[36m${model}: ${body.choices[0].text}\x1b[39m`);
+  const content = prompt(">");
+  if (content === null) {
+    console.log(`\x1b[33mreset ${messages.length} messages\x1b[39m`);
+    messages.length = 0;
+    continue;
+  }
+  messages.push({ content, role: "user" });
+  const data = await anemo.createChatCompletion({ messages, model });
+  const message = data.choices[0].message;
+  messages.push(message);
+  console.log(`\x1b[36mChatGPT (${model}): ${message.content}\x1b[39m`);
 }
 ```
